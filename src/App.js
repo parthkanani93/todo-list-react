@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 // import Create from "./component/Create";
+import {connect} from 'react-redux';
+import {todo_created} from './redux/create/Create.action';
 import "./App.css";
 
-const Create = ({ add, Todolist }) => {
+const Create = ({ AddTodo, Todolist}) => {
   const initialvalue = "";
   const [name, setname] = useState("");
+  // console.log(AddTodo(todo));
   return (
     <div>
       <input
@@ -21,7 +24,7 @@ const Create = ({ add, Todolist }) => {
           if (name === "") {
             return;
           } else {
-            add([...Todolist, { title: name, id: Todolist.length }]);
+            AddTodo({ title: name, id: Todolist.length });
             setname(initialvalue);
           }
         }}
@@ -103,25 +106,25 @@ const List = ({ Todolist, setTodolist, setedit, seteditid }) => {
   );
 };
 
-function App() {
-  const [Todolist, setTodolist] = useState([]);
+function App({Todolist ,AddTodo}) {
+  // const [Todolist, setTodolist] = useState([]);
+  console.log(Todolist);
   const [edit, setedit] = useState(0);
   const [editid, seteditid] = useState();
-  console.log(Todolist);
   return (
     <div className="App">
       <h1>Todo List</h1>
-      <Create add={setTodolist} Todolist={Todolist} />
+      <Create Todolist={Todolist} AddTodo={AddTodo} />
       <Edit
         edit={edit}
         id={editid}
         Todolist={Todolist}
         setedit={setedit}
-        setTodolist={setTodolist}
+        setTodolist={AddTodo}
       />
       <List
         Todolist={Todolist}
-        setTodolist={setTodolist}
+        setTodolist={AddTodo}
         edit={edit}
         setedit={setedit}
         seteditid={seteditid}
@@ -130,4 +133,12 @@ function App() {
   );
 }
 
-export default App;
+ const mapStateToProps = (state) =>({
+  Todolist : state.Create.Todolist
+});
+
+const mapDispatchToProps = (dispatch) =>({
+  AddTodo : (todo) => dispatch(todo_created(todo))
+})
+
+export default connect(mapStateToProps , mapDispatchToProps)(App);
