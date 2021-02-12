@@ -2,12 +2,15 @@ import React, { useState } from "react";
 // import Create from "./component/Create";
 import {connect} from 'react-redux';
 import {todo_created} from './redux/create/Create.action';
+import {todo_editable} from './redux/edit/edit.action';
+import {new_todo} from './redux/edit/edit.action';
+import {add_todo_id} from './redux/edit/edit.action';
+import {todo_update} from "./redux/create/Create.action";
 import "./App.css";
 
 const Create = ({ AddTodo, Todolist}) => {
   const initialvalue = "";
   const [name, setname] = useState("");
-  // console.log(AddTodo(todo));
   return (
     <div>
       <input
@@ -35,9 +38,9 @@ const Create = ({ AddTodo, Todolist}) => {
   );
 };
 
-const Edit = ({ edit, id, Todolist, setTodolist, setedit }) => {
-  const [newtodo, setnewtodo] = useState("");
-  if (edit == 1) {
+const Edit = ({ edit, editId, Todolist, Update_todo, Editable_todo , newtodo ,New_todo }) => {
+  // const [newtodo, setnewtodo] = useState("");
+  if (edit === 1) {
     return (
       <div>
         <input
@@ -45,7 +48,7 @@ const Edit = ({ edit, id, Todolist, setTodolist, setedit }) => {
           placeholder="enter your updated Todo"
           style={{ width: "25", height: "10" }}
           onChange={(event) => {
-            setnewtodo(event.target.value);
+            New_todo(event.target.value);
           }}
           value={newtodo}
         />
@@ -55,12 +58,12 @@ const Edit = ({ edit, id, Todolist, setTodolist, setedit }) => {
               return;
             } else {
               Todolist.map((item) => {
-                if (item.id == id) {
+                if (item.id === editId) {
                   item.title = newtodo;
                 }
               });
-              setedit(0);
-              return setTodolist([...Todolist]);
+              Editable_todo(0);
+              return Update_todo(Todolist);
             }
           }}
         >
@@ -73,7 +76,9 @@ const Edit = ({ edit, id, Todolist, setTodolist, setedit }) => {
   }
 };
 
-const List = ({ Todolist, setTodolist, setedit, seteditid }) => {
+const List = ({ Todolist, Update_todo, Editable_todo, Edit_todo_id }) => {
+  
+ 
   return (
     <div>
       {Todolist.map((list) => {
@@ -82,8 +87,8 @@ const List = ({ Todolist, setTodolist, setedit, seteditid }) => {
             <h4>{list.title}</h4>
             <button
               onClick={() => {
-                setedit(1);
-                seteditid(list.id);
+                Editable_todo(1);
+                Edit_todo_id(list.id);
               }}
             >
               edit
@@ -93,8 +98,8 @@ const List = ({ Todolist, setTodolist, setedit, seteditid }) => {
                 var removeindex = Todolist.map(function (item) {
                   return item.id;
                 }).indexOf(list.id);
-                Todolist.splice(removeindex, 1);
-                return setTodolist([...Todolist]);
+              Todolist.splice(removeindex, 1);
+                return Update_todo(Todolist);
               }}
             >
               delete
@@ -106,39 +111,48 @@ const List = ({ Todolist, setTodolist, setedit, seteditid }) => {
   );
 };
 
-function App({Todolist ,AddTodo}) {
+function App({Todolist ,AddTodo , edit ,editId ,Editable_todo ,Edit_todo_id , New_todo , newtodo,Update_todo}) {
   // const [Todolist, setTodolist] = useState([]);
-  console.log(Todolist);
-  const [edit, setedit] = useState(0);
-  const [editid, seteditid] = useState();
+  // const [edit, setedit] = useState(0);
+  // const [editid, seteditid] = useState();
   return (
     <div className="App">
       <h1>Todo List</h1>
       <Create Todolist={Todolist} AddTodo={AddTodo} />
       <Edit
         edit={edit}
-        id={editid}
+        editId={editId}
         Todolist={Todolist}
-        setedit={setedit}
-        setTodolist={AddTodo}
+        Editable_todo={Editable_todo}
+        Update_todo={Update_todo}
+
+        New_todo={New_todo}
+        newtodo={newtodo}
       />
       <List
         Todolist={Todolist}
-        setTodolist={AddTodo}
+        Update_todo={Update_todo}
         edit={edit}
-        setedit={setedit}
-        seteditid={seteditid}
+        Editable_todo={Editable_todo}
+        Edit_todo_id={Edit_todo_id}
       />
     </div>
   );
 }
 
  const mapStateToProps = (state) =>({
-  Todolist : state.Create.Todolist
+  Todolist : state.Create.Todolist,
+  edit : state.Edit.edit,
+  editId : state.Edit.editId,
+  newtodo : state.Edit.newtodo
 });
 
 const mapDispatchToProps = (dispatch) =>({
-  AddTodo : (todo) => dispatch(todo_created(todo))
+  AddTodo : (todo) => dispatch(todo_created(todo)),
+  Editable_todo : (edit) => dispatch(todo_editable(edit)),
+  New_todo : (newtodo) => dispatch(new_todo(newtodo)),
+  Edit_todo_id : (newid) => dispatch(add_todo_id(newid)),
+  Update_todo : (todo) => dispatch(todo_update(todo))
 })
 
 export default connect(mapStateToProps , mapDispatchToProps)(App);
